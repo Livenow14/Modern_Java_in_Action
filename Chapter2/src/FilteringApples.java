@@ -12,22 +12,27 @@ public class FilteringApples {
 
         // [Apple{color=GREEN, weight=80}, Apple{color=GREEN, weight=155}]
         List<Apple> greenApples = filterApplesByColor(inventory, Color.GREEN);
+        System.out.println(1);
         System.out.println(greenApples);
 
         // [Apple{color=RED, weight=120}]
         List<Apple> redApples = filterApplesByColor(inventory, Color.RED);
+        System.out.println(2);
         System.out.println(redApples);
 
         // [Apple{color=GREEN, weight=80}, Apple{color=GREEN, weight=155}]
         List<Apple> greenApples2 = filter(inventory, new AppleColorPredicate());
+        System.out.println(3);
         System.out.println(greenApples2);
 
         // [Apple{color=GREEN, weight=155}]
         List<Apple> heavyApples = filter(inventory, new AppleWeightPredicate());
+        System.out.println(4);
         System.out.println(heavyApples);
 
         // []
         List<Apple> redAndHeavyApples = filter(inventory, new AppleRedAndHeavyPredicate());
+        System.out.println(5);
         System.out.println(redAndHeavyApples);
 
         // [Apple{color=RED, weight=120}]
@@ -37,6 +42,7 @@ public class FilteringApples {
                 return a.getColor() == Color.RED;
             }
         });
+        System.out.println(6);
         System.out.println(redApples2);
     }
 
