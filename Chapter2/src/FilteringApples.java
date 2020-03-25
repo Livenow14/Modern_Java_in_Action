@@ -8,35 +8,37 @@ public class FilteringApples {
         List<Apple> inventory = Arrays.asList(
                 new Apple(80, Color.GREEN),
                 new Apple(155, Color.GREEN),
-                new Apple(120, Color.RED));
+                new Apple(120, Color.RED),
+                new Apple(160, Color.RED)
+        );
 
-        // [Apple{color=GREEN, weight=80}, Apple{color=GREEN, weight=155}]
-        List<Apple> greenApples = filterApplesByColor(inventory, Color.GREEN);
+
+        List<Apple> greenApples = filterApplesByColor(inventory, Color.GREEN);              //2.1.2 두번째 시도 : 색을 파라미터화
         System.out.println(1);
         System.out.println(greenApples);
 
-        // [Apple{color=RED, weight=120}]
-        List<Apple> redApples = filterApplesByColor(inventory, Color.RED);
+
+        List<Apple> redApples = filterApplesByColor(inventory, Color.RED);                //2.1.2 두번째 시도 : 색을 파라미터화
         System.out.println(2);
         System.out.println(redApples);
 
-        // [Apple{color=GREEN, weight=80}, Apple{color=GREEN, weight=155}]
-        List<Apple> greenApples2 = filter(inventory, new AppleColorPredicate());
+
+        List<Apple> greenApples2 = filter(inventory, new AppleColorPredicate());                //추상적 조건을 메소드 인자로 넘김
         System.out.println(3);
         System.out.println(greenApples2);
 
-        // [Apple{color=GREEN, weight=155}]
+
         List<Apple> heavyApples = filter(inventory, new AppleWeightPredicate());
         System.out.println(4);
         System.out.println(heavyApples);
 
-        // []
+
         List<Apple> redAndHeavyApples = filter(inventory, new AppleRedAndHeavyPredicate());
         System.out.println(5);
         System.out.println(redAndHeavyApples);
 
-        // [Apple{color=RED, weight=120}]
-        List<Apple> redApples2 = filter(inventory, new ApplePredicate() {
+
+        List<Apple> redApples2 = filter(inventory, new ApplePredicate() {                   //2.3.2 다섯 번째 시도 : 익명 클래스 사용
             @Override
             public boolean test(Apple a) {
                 return a.getColor() == Color.RED;
@@ -46,7 +48,7 @@ public class FilteringApples {
         System.out.println(redApples2);
     }
 
-    public static List<Apple> filterGreenApples(List<Apple> inventory) {
+    public static List<Apple> filterGreenApples(List<Apple> inventory) {                        //2.1.1 첫번째 시도 : 녹색 사과 필터링
         List<Apple> result = new ArrayList<>();
         for (Apple apple : inventory) {
             if (apple.getColor() == Color.GREEN) {
@@ -56,7 +58,7 @@ public class FilteringApples {
         return result;
     }
 
-    public static List<Apple> filterApplesByColor(List<Apple> inventory, Color color) {
+    public static List<Apple> filterApplesByColor(List<Apple> inventory, Color color) {         //2.1.2 두번째 시도 : 색을 파라미터화
         List<Apple> result = new ArrayList<>();
         for (Apple apple : inventory) {
             if (apple.getColor() == color) {
@@ -76,7 +78,7 @@ public class FilteringApples {
         return result;
     }
 
-    public static List<Apple> filter(List<Apple> inventory, ApplePredicate p) {
+    public static List<Apple> filter(List<Apple> inventory, ApplePredicate p) {     //2.1.2 네번째 시도 : 추상적 조건으로 필터링
         List<Apple> result = new ArrayList<>();
         for (Apple apple : inventory) {
             if (p.test(apple)) {
@@ -125,7 +127,7 @@ public class FilteringApples {
 
     }
 
-    interface ApplePredicate {
+    interface ApplePredicate {                                                          //선택  조건을 결정하는 인터페이스를 정의 / 참 또는 거짓을 변환하는 함수를 프레디 케이트라고 함
 
         boolean test(Apple a);
 
