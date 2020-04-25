@@ -127,3 +127,64 @@ System.out.println("dishNameLength = " + dishNameLength);
                 .collect(Collectors.toList());
  System.out.println("uniqueCharacter = " + uniqueCharacter);
 ```
+
+  ## 5.4 검색과 매칭
+  특정 속성이 데이터 집합에 있는지 여부를 검색하는 데이터 처리도 자주 사용된다. 스트림 API는 allMatch, anyMatch, noneMatch, findFirst
+  , findAny 등 다양한 유틸리티 메서드를 제공한다. 
+  ### 5.4.1  프레디케이트가 적어도 한 요소와 일치하는지 확인 
+  적어도 한요소가 일치하는지 확인할 때 anyMatch 메서드를 사용한다.
+  ```groovy
+ private static boolean isVegetarianFriendlyMenu() {
+         return Dish.menu.stream().anyMatch(Dish::isVegetarian);     //menu에 채식요리가 잇는지 확인 
+}
+```
+ ### 5.4.2 프레디케이트가 모든 요소와 일치하는지 검사 
+ allMatch 메서드는 스트림의 모든요소가 프레디케이트와 일치하는지 검사한다. 
+ ```groovy
+private static boolean isHealthyMenu(){
+        return Dish.menu.stream().allMatch(d-> d.getCalories()<1000);   //모든 요소의 칼로리가 1000이하인지 체크
+}
+```
+
+ ### noneMatch
+ allMatch와 반대 연산을 수행한다. 즉, 주어진 프리디케이트와 일치하는 요소가 없는지 확인한다. 
+ ```groovy
+private static boolean isHealthyMenu2(){
+        return Dish.menu.stream().noneMatch(d-> d.getCalories()>1000);   //모든 요소의 칼로리가 1000이상이 아닌지 체크
+}
+```
+anyMatch, allMatch, noneMatch 세 메서드는 스트림 쇼트서킷 기법, 즉 자바의 &&, ||와 같은 연산을 활용한다.  
+예를들어 and연산으로 연결된 커다란 불리언 표현식을 평가한다고 가정한다면, 표현식에서 하나라도 거짓이라는 결과가 나오면 나머지 표현식의 결과가 
+상관없이 전체 결과도 거짓이 된다. 이러한 상황을 쇼트셔킷이라고함 .
+
+ ### 5.4.3 요소 검색
+ findAny 메서드는 현재 스트림에서 임의의 요소를 반환한다. findAny 메서드를 다른 스트림연산과 연결해서 사용할 ㅅ ㅜ있다. 
+ 예를들어 다음 코드처럼 filter와 findAny를 이용해서 채식요리를 선택할 수 있다.
+  
+  ```groovy
+
+Optional<Dish> dish = findVegetarianDish();
+dish.ifPresent(d-> System.out.println(d.getName()));
+
+private static Optional<Dish> findVegetarianDish(){
+        return Dish.menu.stream().filter(Dish::isVegetarian).findAny();
+}
+```
+스트림 파이프라인은 내부적으로 단일 과정으로 실행할 수 있도록 최적화된다. 즉, 쇼트서킷을 이용해서 결과를 찾는 즉시
+실행을 종료한다. 
+
+ ### Optional 이란?
+ Optional<T> 클래스는 값의 존재나 부재 여부를 표현하는 컨테이너 클래스다. 이전 예제에서 findAny는 아무 요소도 반환하지 않을 수 있다.
+ null은 쉽게 에러를 일으킬 수 있으므로 자바 8 라이브러리 설계자는 Optional<T>를 만들었다. Optional을 이용해서
+ null 확인 관련 버그를 피하는 방법은 10장에 자세히 설명한다. 일단 Optional은 값이 존재하는지 확인하고 값이 없을 때 어떻게 처리할지
+ 강제하는 기능을 제공한다. 
+ - isPresent() : Optional이 값을 포함하면 true 을 반환하고, 값을 포함하지 않으면 false를 반환한다.
+ - ifPresent(Consumer<T> block) : 값이 있으면 주어진 블록을 실행한다. Consumer 함수형 인터페이스에는
+ T 형식의 인수를 받으며 void를 반환하는 람다를 전달할 수 있다. 
+ - T get() : 값이 존하면 값을 반환하고, 값이 없으면 NoSuchElementException을 일으킨다.
+ - t orElse(T other)는 값이 있으면 값을 반환하고, 값이 없으면 기본값을 반환한다. 
+ 
+ 예를들어 이전 예제의 Optional<Dish>에서는 요리명이 null인지 검사할 필요가 없었다. 
+ 
+ ### 5.4.4 첫번째 요소 찾기 
+ 일부 스트림에는 논리적인 아이템 순서가 정해져 있을 수 있다. 이런 스트림에서 첫번째 요소를 찾으려면 findFirst를 사용하면된다.
