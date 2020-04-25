@@ -188,3 +188,88 @@ private static Optional<Dish> findVegetarianDish(){
  
  ### 5.4.4 첫번째 요소 찾기 
  일부 스트림에는 논리적인 아이템 순서가 정해져 있을 수 있다. 이런 스트림에서 첫번째 요소를 찾으려면 findFirst를 사용하면된다.
+ ```groovy
+List<Integer> someNumbers = Arrays.asList(1, 2, 3, 4, 5);
+Optional<Integer> firstSquareDivisibleByThree= someNumbers.stream()
+                                                .map(n->n*n)
+                                                .filter(n->n%3 ==0)
+                                                .findFirst();       //9
+firstSquareDivisibleByThree.ifPresent(d-> System.out.println(d));
+
+```
+ 
+ ## 5.5 리듀싱 
+ '메뉴의 모든 칼로리의 합계를 구하시오', '메뉴에서 칼로리가 가장 낮은 요리는?' 같이 스트림 요소를 조합해서 더 복잡한 질의를 표현하는
+ 방법을 설명한다. 이러한 질의를 수행하려면 Integer 같은 결과가 나올 때까지 스트림의 모든 요소를 반복적으로 처리해야 한다. 
+ 이런 질의를 리듀싱 연산(모든 스트림 요소를 처리해서 값으로 도출하는)이라고 한다. 함수형 프로그래밍 언어 용어로는 이 과정이 마치 
+ 종이(우리의 스트림)를 작은 조각이 될때까지 반복해서 접는 것과 비슷하다는 의미로 폴드라고 부른다. 
+ 
+ ### 5.5.1 요소의 합 
+ reduce는 두 개의 인수를 갖는다.
+ - 초기값 0
+ - 두 요소를 조합해서 새로운 값을 만드는 BinaryOperator<T>, 예제에서는 람다 표현신 (a,b)-> a+b를 사용했다. 
+ ```groovy
+List<Integer> numbers = Arrays.asList(3, 4, 5, 1, 2);
+int sum = numbers.stream().reduce(0, (a,b)-> a+b);
+System.out.println("sum = " + sum); //15
+
+```
+어떤 식으로 reduce가 스트림의 모든 숫자를 더하는지 자세히 살펴보자. 우선 람다의 첫 번째 파라미터 (a)에 0이 사용되었고,
+스트림에서 3을 소비해서 두번째 파라미터(b)로 사용햇다. 0+3의 결과인 3이 새로운 누적값(accumulated value)이 되었다.
+이제 누적값으로 람다를 다시 호출하여 다음 요소인 4를(b) 소비한다. 이렇게 최종적으로 15가 도출된다.  
+메서드 참조를 이용해서 이 코드를 더 간결하게 만들 수 있다. 자바 8에서는 Integer 크래스에 두 숫자를 더하는 정적 sum 메서드를
+제공한다. 따라서 직접 람다 코드를 구현할 필요가 없다. 
+```groovy
+List<Integer> numbers = Arrays.asList(3, 4, 5, 1, 2);
+int sum2 = numbers.stream().reduce(0,Integer::sum);         //Integer클레스의 sum 메서드 사용 
+System.out.println("sum2 = " + sum2);
+        
+``` 
+
+### 초깃값이 없을 때 
+초깃값을 받지 않도록 오버로드된 reduce도 있다. 그러나 이 reduce는 Optional 객체를 반환한다.   
+Optional<Integer>을 반환하는 이유는, 스트림에 아무 요소도 없는 상황이 있을 수 있기 때문이다. 이때 초깃값이 없으므로 reduce는
+합계를 반환할 수 없다. 따라서 합계가 없음을 가르킬 수 있도록 Optional 객체로 감싼 결과를 반환한다. 
+
+### 5.5.2 최댓값과 최솟값 
+최댓값과 최솟값을 찾을 때도 reduce를 활용할 수 있다. 앞서 말했듯이 reduce는 두 인수를 받는다.
+- 초깃값
+- 스트림의 두 요소를 합쳐서 하나의 값으로 만드는데 사용할 람다
+
+```groovy
+List<Integer> numbers = Arrays.asList(3, 4, 5, 1, 2);
+Optional<Integer> max= numbers.stream().reduce(Integer::max);       //최댓값을 찾음
+max.ifPresent(System.out::println);
+
+Optional<Integer> min= numbers.stream().reduce(Integer::min);       //최솟값을 찾음
+min.ifPresent(m -> System.out.println(m));
+```
+
+### reduce 메서드의 장점과 병렬화
+reduce를 이용하면 내부 반복이 추상화 되면서 내부 구현에서 병렬로 reduce를 실행할 수 있게된다. 반복적인 합계에서는 sum변수를 
+공유해야 하므로 쉽게 병렬화하기 어렵다. 강제적으로 동기화시키더라도 결국 병렬화로 얻어야 할 이득이 스레드 간의 소모적인 경쟁때문에
+상쇄되어 버린다는 사실을 알게 될 것이다. 사실 이 작업을 병렬화 하면 입력을 분할하고, 분할된 입력을 더한 다음에, 더한 값을 합쳐야 한다.
+지금까지 살펴본 코드와는 조금 다른 코드가 나타난다. 포크/조인 프레임워크를 이용하는 방법을 알아야한다. paralledStream()을 사용해서
+병렬처리 할 수 있다. 하지만 이에 대한 대가도 필요하다. 
+
+### 스트림 연산 : 상태 있음과 없음 
+스트림 연산은 마치 만병통치약 같은 존재다. 스트림을 이용해서 원하는 연산을 쉽게 구현할 수 있으며 컬렉션으로 스트림을 만드는
+stream 메서드를 parallelStream로 바꾸는 것만으로도 별다른 노력 없이 병렬성을 얻을 수 있다. 우리 예제에서
+사용한 기법을 많은 애플리케이션에서도 이용한다. 요리 리스트를 스트림으로 변환할 수 있고, filter로 원하는 종류의 요리만 선택할 수 있으며,
+map을 이용해서 칼로리를 추가한 다음에, reduce로 요리의 칼로리 총합을 계산한다. 심지어 이런 계산을 병렬로 실행할 수 있다. 
+하지만 이들은 각각 다양한 연산을 수행한다. 따라서 각각의 연산은 내부적인 상태를 고려해야한다.  
+map, filter 등은 입력 스트림에서 각 요소를 받아 0 또는 결과를 출력 스트림으로 보낸다. 따라서(사용자가 제공한 람다나 메서드 참조가 내부적인 가변
+상태를 갖지 않는다는 가정하에)이들은 보통 상태가 없는, 즉 내부 상태를 갖지 않은 연산(stateless operation)이다.  
+하지만 reduce, sum, max 같은 연산은 결과를 누적할 내부 상태가 필요하다. 예제으 ㅣ내부 상태는 작은 값이다.
+우리 예제에서는 int 또는 double을 내부 상태롤 사용했다. 스트림에서 처리하는 요소 수와 관계없이 내부 상태의 크기는 한정(bounded)되어있다.  
+반변 sorted나 distinct 같은 연산은 filter나 map처럼 스트림을 입력으로 받아 다름 스트림을 출력하는 것처럼 보일 수 있다. 하지만 sorted
+나 distinct는 filter나 map과는 다르다. 스트림의 요소를 정렬하거나 중복을 제거하려면 과거의 이력을 알고 있어야 한다.
+예를 들어 어떤요소를 출력 스트림으로 추가하려면 "모든 요소가 버퍼에 추가되어 있어야 한다". 연산을 수행하는데 필요한 저장소 크기는
+정해져 있지 않다. 따라서 데이터 스트림의 크기가 크거나 무한이라면 문제가 생길 수 있다.(예를 들어 모든 소수를 포함하는 스트림을 
+역순으로 만들면 어떤일이 일어날까? 첫 번째 요소로 가장 큰 소스, 즉 세상에서 존재하지 않는 수를 반환해야 한다). 이러한 연산을
+"내부상태를 갖는 연산"이라 한다. 
+
+
+ 
+
+ 
