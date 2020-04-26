@@ -11,10 +11,10 @@ Overview
 - [2장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter2)
 
 ### 3장_람다 표현식 
-- [23장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter3)
+- [3장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter3)
 
 ### 4장_스트림 소개 
-- [23장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter4)
+- [4장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter4)
 
 ### 5장_스트림 활용
-- [23장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter5)
+- [5장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter5)
