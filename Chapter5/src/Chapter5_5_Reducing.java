@@ -8,7 +8,8 @@ public class Chapter5_5_Reducing {
         List<Integer> numbers = Arrays.asList(3, 4, 5, 1, 2);
         int sum = numbers.stream().reduce(0, (a,b)-> a+b);
         System.out.println("sum = " + sum);
-        
+
+
         int sum2 = numbers.stream().reduce(0,Integer::sum);         //Integer클레스의 sum 메서드 사용
         System.out.println("sum2 = " + sum2);
 

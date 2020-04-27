@@ -344,4 +344,54 @@ pythagoreanTriples2.forEach(t -> System.out.println(t[0] + ", " + t[1] + ", " + 
 일련의 값, 배열, 파일, 심지어 함수를 이용한 무한 스트림 만들기 등 다양한 방식으로 스트림ㅇ르 만드는 방법을 설명한다. 
 
 ###5.8.1 값으로 스트림 만들기
+ 임의의 수를 인수로 받는 정적 메서드 Stream.of를 이용해서 스트림을 만들 수 있다. 예를 들어 다음 코드는
+ Stream.of로 문자열 스트림을 만드는 예제다. 스트림의 모든 문자열을 대문자로 변환한 후 문자열을 하나 씩 출력한다. 
+ ```groovy
+ // 스트림의 모든 문자열을 대문자로 변환한 후 문자열을 하나 씩 출력
+ Stream<String> stream = Stream.of("Java 8", "Lambdas", "In", "Action");
+ stream.map(String::toUpperCase)
+         .forEach(System.out::println);
+```
+
+### 5.8.3 배열로 스트림 만들기 
+배열을 인수로 받는 정적 메서드 Arrays.stream을 이용해서 스트림을 만들 수 있다. 예를 들어 다음처럼
+기본형 int로 이루어진 배열을 IntStream으로 변환할 수 있다.
+```groovy 
+// Arrays.stream
+int[] numbers = { 2, 3, 5, 7, 11, 13 };
+System.out.println(Arrays.stream(numbers).sum());           
+```
  
+### 함수로 무한 스트림 만들기 
+스트림 API는 함수에서 스트림을 만들 수 있는 두 정적 메서드 Stream.iterate 와 Stream.generate를 제공한다. 두 연산을 이용해서
+무한 스트림, 즉 고정된 컬렉션에서 고정도니 크기로 스트림을 만들었던 것과는 달리 크기가 고정되지 않은 스트림을 만들 수 있다. 
+iterate와 generate에서 만든 스트림은 요청할 때마다 주어진 함수를 이용해서 값을 만든다. 따라서 무제한으로 값을 계산할 수 잇다.
+하지만 보통 무한한 값을 출력하지 않도록 limit(n)함수를 함께 연결해서 사용한다. 
+
+####iterate 메서드 
+```groovy
+// Stream.iterate
+System.out.println("Iterate : ");
+Stream.iterate(0,n->n+2)
+        .limit(10)
+        .forEach(System.out::println);
+```
+iterate 메서드는 초깃값(예제에서는 0)과 람다(예제에서는 UnaryOperator <T> 사용 )를 인수로 받아서 새로운 값을 끊임없이 생산할 수 있다.
+예제에서는 람다 n-> n+2, 즉 이전 결과에 2를 더한 값을 반환한다. 결과적으로 iterate 메서드는 짝수 스트림을 생성한다.
+스트림의 첫번째 요소는 0이다. 다음에는 2를 더해 22가 된다. 그리고 2를 다시 더해 4가 되는 것이다. 기본적으로 iterate는
+기존 결과에 의존해서 순차적으로 연산을 수행한다. iterate는 요청할 때마다 값을 생산할 수 있으며 끝이 없으므로 무한 스트림을 만든다.
+이러한 스트림을 언바운드 스트림이라고 표현한다. 최종 연산인 forEach를 호출해서 스트림을 소비하고 개별 요소를 출력한다. 
+
+###generate
+
+```groovy
+// Stream.generate를 이용한 임의의 double 스트림
+Stream.generate(Math::random)
+        .limit(10)
+        .forEach(System.out::println);
+
+// Stream.generate을 이용한 요소 1을 갖는 스트림
+IntStream.generate(() -> 1)
+        .limit(5)
+        .forEach(System.out::println);
+```
