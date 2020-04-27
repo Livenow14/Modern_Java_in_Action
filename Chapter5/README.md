@@ -269,7 +269,79 @@ map, filter 등은 입력 스트림에서 각 요소를 받아 0 또는 결과�
 역순으로 만들면 어떤일이 일어날까? 첫 번째 요소로 가장 큰 소스, 즉 세상에서 존재하지 않는 수를 반환해야 한다). 이러한 연산을
 "내부상태를 갖는 연산"이라 한다. 
 
+## 5.7 숫자형 스트림 
+스트림에서는 스트림 API 숫자 스트림을 효율적으로 사용할 수 있도록 기본 특화 스트림을 제공한다.
 
+### 5.7.1 기본 특화 스트림 
+세 가지 기본 특화 스트림을 제공한다
+- int 요소에 특화된 IntStream
+- double 요소에 특화된 DoubleStream
+- Long 요소에 특화된 LongStream  
  
+ 각각의 인터페이스는 숫자 스트림의 합계를 계산하는 sum, 최댓값 요소를 검색하는 max 같이 자주 사용하는 숫자 관련 리듀싱
+ 연산 수행 메서드를 제공한다. 또한 필요할 때 다시 객체 스트림으로 복원하는 기능도 제공한다. 특화 스트림은 오직 박싱 과정에서 
+ 일어나는 효율성과 관련 있으며 스트림에 추가 기능을 제공하지는 않는다는 사실을 기억하자. 
+ 
+ #### 숫자 스트림으로 매핑 
+ 스트림을 특화 스트림으로 변환할 때는 mapToInt, mapToDouble, mapToLong 세 가지 메서드를 가장 많이 사용한다. 
+ 이들 메서드는 map과 정확히 같은 기능을 수행하지만, Stream<T>대신 특화된 스트림은 반환한다. 
+ 
+ ```groovy
+//숫자 스트림으로 매핑
+int sum = Dish.menu.stream()
+                .mapToInt(Dish::getCalories)
+                .sum();
+System.out.println("sum = " + sum);
+```
+mapToInt 메서드는 각 요리에서 모든 칼로리(Integer 형식)를 추출한 다음에 IntStream을(Stream<Integer>가 아님) 반환한다. 따라서
+IntStream 인터페이스에서 제공하는 sum 메서드를 이용해서 칼로리 합계를 계산할 수 있다. 스트림이 비어잇으면 sum은 기본값 0을 반환한다.
+IntStream은 max, min, average 등 다양한 유틸리티 메서드도 지원한다. 
 
+#### 객체 스트림으로 복원하기 
+boxed 메서드를 활용한다. 
+
+####기본값:OptionalInt
+ 합계 예제에서는 0이라는 기본값이 있지만, 0이라는 기본값 때문에 잘못된 결과가 도출 될 수 있다. 
+   요소가 없는 상황과 실제 최댓값이 0인 상황을 구별하기 위한 OptionalInt
+```groovy
+OptionalInt maxCalories = Dish.menu.stream()
+                .mapToInt(Dish::getCalories)
+                .max();
+           
+int max= maxCalories.orElse(1);
+System.out.println("max = " + max);
+```
+
+### 5.7.2 숫자 범위
+특정 범위의 숫자를 이용해야할 때. range와 rangeClosed라는 두 가지 정적 메서드를 제공.  
+range메서드는 시작값과 종료값이 결과에 포함되지 않는 반변 rangeClosed는 결과값에 포함된다. 
+```groovy
+    // 숫자 범위
+IntStream evenNumbers = IntStream.rangeClosed(1, 100)
+        .filter(n -> n % 2 == 0);
+System.out.println(evenNumbers.count());
+```
+시작값과 결과값이 포함되므로 50개를 반환한다. 
+
+### 5.7.3 숫자 스트림 활용: 피타고라스 수
+```groovy
+//피타고라스 수
+Stream<int[]> pythagoreanTriples = IntStream.rangeClosed(1, 100).boxed()
+        .flatMap(a -> IntStream.rangeClosed(a, 100)
+                .filter(b -> Math.sqrt(a * a + b * b) % 1 == 0).boxed()
+                .map(b -> new int[] { a, b, (int) Math.sqrt(a * a + b * b) }));
+pythagoreanTriples.forEach(t -> System.out.println(t[0] + ", " + t[1] + ", " + t[2]));
+
+Stream<int[]> pythagoreanTriples2 = IntStream.rangeClosed(1, 100).boxed()
+        .flatMap(a -> IntStream.rangeClosed(a, 100)
+                .mapToObj(b -> new double[]{a, b, Math.sqrt(a * a + b * b)})
+                .filter(t -> t[2] % 1 == 0))
+        .map(array -> Arrays.stream(array).mapToInt(a -> (int) a).toArray());
+pythagoreanTriples2.forEach(t -> System.out.println(t[0] + ", " + t[1] + ", " + t[2]));
+```
+
+##5.8 스트림 만들기
+일련의 값, 배열, 파일, 심지어 함수를 이용한 무한 스트림 만들기 등 다양한 방식으로 스트림ㅇ르 만드는 방법을 설명한다. 
+
+###5.8.1 값으로 스트림 만들기
  
