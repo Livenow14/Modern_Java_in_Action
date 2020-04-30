@@ -18,3 +18,6 @@ Overview
 
 ### 5장_스트림 활용
 - [5장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter5)
+
+### 6장_스트림으로 데이터 수집
+= [6장](https://github.com/Livenow14/Modern_Java_in_Action/tree/master/Chapter6)
